@@ -54,17 +54,37 @@
     .new-equation-button:hover {
       background-color: darkgreen;
     }
+    #score-box {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: yellow;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      border: 2px solid black;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
   <div id="equation-container"></div>
+  <div id="score-box">Score = 0</div>
   <script>
-    // Utility function to format numbers based on rules
+    let a, b, c, d; // Equation variables
+    let score = 0; // Score counter
+    let successCount = 0; // Tracks how many times the congratulatory message was achieved
+
+    function updateScore() {
+      successCount++;
+      score = successCount * 5; // Score is a multiple of 5
+      document.getElementById("score-box").textContent = `Score = ${score}`;
+    }
+
     function formatNumber(num) {
       return num.toFixed(3).replace(/\.?0+$/, ""); // Up to 3 decimal places, no trailing zeros
     }
 
-    // Utility function to format equations
     function formatEquation(a, b, c, d) {
       const left = [
         a !== 0 ? `${a === 1 ? "" : a === -1 ? "-" : formatNumber(a)}x` : "",
@@ -79,13 +99,9 @@
       return `${left} = ${right}`;
     }
 
-    // Function to validate user input
     function validateInput(input) {
       return /^[\+\-\*\/]x?$|^[\+\-\*\/](\d+(\.\d+)?|\-\d+(\.\d+)?)x?$/.test(input);
     }
-
-    // Initialize equation parameters
-    let a, b, c, d;
 
     function generateEquation() {
       const equationContainer = document.getElementById("equation-container");
@@ -104,35 +120,31 @@
     function renderEquation(command = null) {
       const equationContainer = document.getElementById("equation-container");
 
-      // Print the updated equation
       const equationDiv = document.createElement("div");
       equationDiv.className = "equation";
       equationDiv.textContent = formatEquation(a, b, c, d);
       equationContainer.appendChild(equationDiv);
 
-      // Check for end state
       if (
-      (Math.abs(a - 1) < 0.000001 && Math.abs(b) < 0.000001 && Math.abs(c) < 0.000001) ||
-      (Math.abs(a) < 0.000001 && Math.abs(c - 1) < 0.000001 && Math.abs(d) < 0.000001)
+        (Math.abs(a - 1) < 0.000001 && Math.abs(b) < 0.000001 && Math.abs(c) < 0.000001) ||
+        (Math.abs(a) < 0.000001 && Math.abs(c - 1) < 0.000001 && Math.abs(d) < 0.000001)
       ) {
-      const successMessage = document.createElement("div");
-      successMessage.className = "success-message";
-      const solution = Math.abs(a - 1) < 0.000001 ? formatNumber(d) : formatNumber(b);
-      successMessage.textContent = `Well done! You have solved the equation. x = ${solution}`;
-      equationContainer.appendChild(successMessage);
+        const successMessage = document.createElement("div");
+        successMessage.className = "success-message";
+        const solution = Math.abs(a - 1) < 0.000001 ? formatNumber(d) : formatNumber(b);
+        successMessage.textContent = `Well done! You have solved the equation. x = ${solution}`;
+        equationContainer.appendChild(successMessage);
 
-        // Add "NEW EQUATION" button
+        updateScore(); // Update score when equation is solved
+
         const newEquationButton = document.createElement("button");
         newEquationButton.className = "new-equation-button";
         newEquationButton.textContent = "NEW EQUATION";
-        newEquationButton.style.display = "block"; // Makes the button a block element
-        newEquationButton.style.margin = "20px auto"; // Centers the button horizontally
         newEquationButton.onclick = generateEquation;
         equationContainer.appendChild(newEquationButton);
         return;
       }
 
-      // Add input box for the next command
       const inputContainer = document.createElement("div");
       inputContainer.className = "input-container";
 
