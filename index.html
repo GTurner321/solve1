@@ -1,1 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Equation Solver</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 20px;
+      background-color: lightblue;
+    }
+    .equation {
+      font-size: 24px;
+      text-align: center;
+      background-color: lightblue;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .input-box {
+      margin-top: 10px;
+    }
+    .error-message {
+      color: orange;
+      margin-top: 5px;
+    }
+    .success-message {
+      color: green;
+      font-size: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="equation-container"></div>
+  <script>
+    // Utility function to format numbers with specific rules
+    function formatNumber(num) {
+      if (num.toFixed(3).slice(-1) === "0") {
+        return num.toFixed(2).slice(-1) === "0" ? num.toFixed(1) : num.toFixed(2);
+      }
+      return num.toFixed(3);
+    }
+
+    // Utility function to format equations
+    function formatEquation(a, b, c, d) {
+      const parts = [];
+
+      if (a !== 0) parts.push(a === 1 ? "x" : a === -1 ? "-x" : `${formatNumber(a)}x`);
+      if (b !== 0) parts.push(b > 0 && a !== 0 ? `+${formatNumber(b)}` : `${formatNumber(b)}`);
+      if (parts.length === 0) parts.push("0");
+
+      const left = parts.join("");
+
+      parts.length = 0;
+      if (c !== 0) parts.push(c === 1 ? "x" : c === -1 ? "-x" : `${formatNumber(c)}x`);
+      if (d !== 0) parts.push(d > 0 && c !== 0 ? `+${formatNumber(d)}` : `${formatNumber(d)}`);
+      if (parts.length === 0) parts.push("0");
+
+      const right = parts.join("");
+      return `${left} = ${right}`;
+    }
+
+    // Function to validate user input
+    function validateInput(input) {
+      return /^[\+\-\*\/](\d+(\.\d+)?|\-\d+(\.\d+)?)$|^[\+\-](\d+(\.\d+)?|\-\d+(\.\d+)?)x$/.test(input);
+    }
+
+    // Initialize equation parameters
+    let a, b, c, d;
+
+    function generateEquation() {
+      do {
+        a = Math.floor(Math.random() * 21) - 10;
+        c = Math.floor(Math.random() * 21) - 10;
+      } while (a === c);
+
+      b = Math.floor(Math.random() * 21) - 10;
+      d = Math.floor(Math.random() * 21) - 10;
+
+      renderEquation();
+    }
+
+    function renderEquation() {
+      const equationContainer = document.getElementById("equation-container");
+      equationContainer.innerHTML = ""; // Clear previous content
+
+      const equationDiv = document.createElement("div");
+      equationDiv.className = "equation";
+      equationDiv.textContent = formatEquation(a, b, c, d);
+      equationContainer.appendChild(equationDiv);
+
+      const inputContainer = document.createElement("div");
+      inputContainer.className = "input-container";
+
+      const inputBox = document.createElement("input");
+      inputBox.className = "input-box";
+      inputBox.type = "text";
+      inputContainer.appendChild(inputBox);
+
+      const errorMessage = document.createElement("span");
+      errorMessage.className = "error-message";
+      inputContainer.appendChild(errorMessage);
+
+      equationContainer.appendChild(inputContainer);
+
+      inputBox.focus();
+
+      inputBox.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const input = inputBox.value.trim();
+
+          if (!validateInput(input)) {
+            errorMessage.textContent = "Try again.";
+            return;
+          }
+
+          errorMessage.textContent = "";
+          processCommand(input);
+
+          inputBox.disabled = true;
+          renderEquation();
+        }
+      });
+    }
+
+    function processCommand(command) {
+      const value = parseFloat(command.slice(1).replace("x", ""));
+      const operation = command[0];
+
+      if (command.includes("x")) {
+        if (operation === "+") {
+          if (isNaN(value)) {
+            a += 1;
+            c += 1;
+          } else {
+            a += value;
+            c += value;
+          }
+        } else if (operation === "-") {
+          if (isNaN(value)) {
+            a -= 1;
+            c -= 1;
+          } else {
+            a -= value;
+            c -= value;
+          }
+        }
+      } else {
+        if (operation === "+") {
+          b += value;
+          d += value;
+        } else if (operation === "-") {
+          b -= value;
+          d -= value;
+        } else if (operation === "*") {
+          a *= value;
+          b *= value;
+          c *= value;
+          d *= value;
+        } else if (operation === "/") {
+          a /= value;
+          b /= value;
+          c /= value;
+          d /= value;
+        }
+      }
+    }
+
+    generateEquation();
+  </script>
+</body>
+</html>
 
