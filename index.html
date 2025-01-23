@@ -16,22 +16,18 @@
       text-align: center;
       background-color: lightblue;
       padding: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
     .input-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
     .input-box {
       margin-top: 10px;
       padding: 5px;
       font-size: 16px;
-    }
-    .input-command {
-      font-size: 16px;
-      margin-top: 5px;
     }
     .error-message {
       color: orange;
@@ -42,6 +38,19 @@
       font-size: 20px;
       margin-top: 20px;
       text-align: center;
+    }
+    .new-equation-btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: darkblue;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .new-equation-btn:hover {
+      background-color: navy;
     }
   </style>
 </head>
@@ -83,16 +92,9 @@
       renderEquation();
     }
 
-    function renderEquation(command = null) {
+    function renderEquation() {
       const equationContainer = document.getElementById("equation-container");
-
-      // Print the previous command if available
-      if (command) {
-        const commandDiv = document.createElement("div");
-        commandDiv.className = "input-command";
-        commandDiv.textContent = `Command: ${command}`;
-        equationContainer.appendChild(commandDiv);
-      }
+      equationContainer.innerHTML = ""; // Clear previous content
 
       // Print the updated equation
       const equationDiv = document.createElement("div");
@@ -102,18 +104,12 @@
 
       // Check for end state
       if (a === 1 && b === 0 && c === 0) {
-        const successMessage = document.createElement("div");
-        successMessage.className = "success-message";
-        successMessage.textContent = `Well done! You have solved the equation. x = ${formatNumber(d)}`;
-        equationContainer.appendChild(successMessage);
+        showSuccessMessage(d);
         return;
       }
 
       if (a === 0 && c === 1 && d === 0) {
-        const successMessage = document.createElement("div");
-        successMessage.className = "success-message";
-        successMessage.textContent = `Well done! You have solved the equation. x = ${formatNumber(b)}`;
-        equationContainer.appendChild(successMessage);
+        showSuccessMessage(b);
         return;
       }
 
@@ -146,9 +142,26 @@
           errorMessage.textContent = "";
           inputBox.disabled = true;
           processCommand(input);
-          renderEquation(input);
+          renderEquation();
         }
       });
+    }
+
+    function showSuccessMessage(solution) {
+      const equationContainer = document.getElementById("equation-container");
+
+      const successMessage = document.createElement("div");
+      successMessage.className = "success-message";
+      successMessage.textContent = `Well done! You have solved the equation. x = ${formatNumber(solution)}`;
+      equationContainer.appendChild(successMessage);
+
+      const newEquationButton = document.createElement("button");
+      newEquationButton.className = "new-equation-btn";
+      newEquationButton.textContent = "NEW EQUATION";
+      newEquationButton.addEventListener("click", () => {
+        location.reload();
+      });
+      equationContainer.appendChild(newEquationButton);
     }
 
     function processCommand(command) {
