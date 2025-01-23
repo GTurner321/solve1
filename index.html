@@ -111,12 +111,15 @@
       equationContainer.appendChild(equationDiv);
 
       // Check for end state
-      if ((a === 1 && b === 0 && c === 0) || (a === 0 && c === 1 && d === 0)) {
-        const successMessage = document.createElement("div");
-        successMessage.className = "success-message";
-        const solution = a === 1 ? formatNumber(d) : formatNumber(b);
-        successMessage.textContent = `Well done! You have solved the equation. x = ${solution}`;
-        equationContainer.appendChild(successMessage);
+      if (
+      (Math.abs(a - 1) < 0.000001 && Math.abs(b) < 0.000001 && Math.abs(c) < 0.000001) ||
+      (Math.abs(a) < 0.000001 && Math.abs(c - 1) < 0.000001 && Math.abs(d) < 0.000001)
+      ) {
+      const successMessage = document.createElement("div");
+      successMessage.className = "success-message";
+      const solution = Math.abs(a - 1) < 0.000001 ? formatNumber(d) : formatNumber(b);
+      successMessage.textContent = `Well done! You have solved the equation. x = ${solution}`;
+      equationContainer.appendChild(successMessage);
 
         // Add "NEW EQUATION" button
         const newEquationButton = document.createElement("button");
