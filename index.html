@@ -15,7 +15,7 @@
       font-size: 24px;
       text-align: center;
       background-color: lightblue;
-      padding: 10px;
+      padding: 5px;
       margin-bottom: 5px;
     }
     .input-container {
@@ -25,9 +25,13 @@
       margin-bottom: 10px;
     }
     .input-box {
-      margin-top: 10px;
+      margin-top: 5px;
       padding: 5px;
       font-size: 16px;
+    }
+    .input-command {
+      font-size: 16px;
+      margin-top: 5px;
     }
     .error-message {
       color: orange;
@@ -36,21 +40,20 @@
     .success-message {
       color: green;
       font-size: 20px;
-      margin-top: 20px;
+      margin-top: 10px;
       text-align: center;
     }
-    .new-equation-btn {
+    .new-equation-button {
       margin-top: 10px;
       padding: 10px 20px;
       font-size: 16px;
-      background-color: darkblue;
+      background-color: green;
       color: white;
       border: none;
       cursor: pointer;
-      border-radius: 5px;
     }
-    .new-equation-btn:hover {
-      background-color: navy;
+    .new-equation-button:hover {
+      background-color: darkgreen;
     }
   </style>
 </head>
@@ -59,16 +62,22 @@
   <script>
     // Utility function to format numbers based on rules
     function formatNumber(num) {
-      if (Math.abs(num % 1) < 0.0001) return num.toFixed(0); // Integer
-      if (Math.abs(num * 100 % 1) < 0.01) return num.toFixed(1); // One decimal place
-      if (Math.abs(num * 1000 % 1) < 0.001) return num.toFixed(2); // Two decimal places
-      return num.toFixed(3); // Three decimal places
+      let formatted = num.toFixed(3).replace(/\.?0+$/, ""); // Up to 3 decimal places, no trailing zeros
+      return formatted;
     }
 
     // Utility function to format equations
     function formatEquation(a, b, c, d) {
-      const left = [a !== 0 ? `${a === 1 ? "" : a === -1 ? "-" : formatNumber(a)}x` : "", b !== 0 ? `${b > 0 && a !== 0 ? "+" : ""}${formatNumber(b)}` : ""].join("").trim() || "0";
-      const right = [c !== 0 ? `${c === 1 ? "" : c === -1 ? "-" : formatNumber(c)}x` : "", d !== 0 ? `${d > 0 && c !== 0 ? "+" : ""}${formatNumber(d)}` : ""].join("").trim() || "0";
+      const left = [
+        a !== 0 ? `${a === 1 ? "" : a === -1 ? "-" : formatNumber(a)}x` : "",
+        b !== 0 ? `${b > 0 && a !== 0 ? "+" : ""}${formatNumber(b)}` : "",
+      ].join("").trim() || "0";
+
+      const right = [
+        c !== 0 ? `${c === 1 ? "" : c === -1 ? "-" : formatNumber(c)}x` : "",
+        d !== 0 ? `${d > 0 && c !== 0 ? "+" : ""}${formatNumber(d)}` : "",
+      ].join("").trim() || "0";
+
       return `${left} = ${right}`;
     }
 
@@ -92,7 +101,7 @@
       renderEquation();
     }
 
-    function renderEquation() {
+    function renderEquation(command = null) {
       const equationContainer = document.getElementById("equation-container");
       equationContainer.innerHTML = ""; // Clear previous content
 
@@ -103,13 +112,20 @@
       equationContainer.appendChild(equationDiv);
 
       // Check for end state
-      if (a === 1 && b === 0 && c === 0) {
-        showSuccessMessage(d);
-        return;
-      }
+      if ((a === 1 && b === 0 && c === 0) || (a === 0 && c === 1 && d === 0)) {
+        const successMessage = document.createElement("div");
+        successMessage.className = "success-message";
+        const solution = a === 1 ? formatNumber(d) : formatNumber(b);
+        successMessage.textContent = `Well done! You have solved the equation. x = ${solution}`;
+        equationContainer.appendChild(successMessage);
 
-      if (a === 0 && c === 1 && d === 0) {
-        showSuccessMessage(b);
+        // Add "NEW EQUATION" button
+        const newEquationButton = document.createElement("button");
+        newEquationButton.className = "new-equation-button";
+        newEquationButton.textContent = "NEW EQUATION";
+        newEquationButton.onclick = generateEquation;
+        equationContainer.appendChild(newEquationButton);
+
         return;
       }
 
@@ -142,26 +158,9 @@
           errorMessage.textContent = "";
           inputBox.disabled = true;
           processCommand(input);
-          renderEquation();
+          renderEquation(input);
         }
       });
-    }
-
-    function showSuccessMessage(solution) {
-      const equationContainer = document.getElementById("equation-container");
-
-      const successMessage = document.createElement("div");
-      successMessage.className = "success-message";
-      successMessage.textContent = `Well done! You have solved the equation. x = ${formatNumber(solution)}`;
-      equationContainer.appendChild(successMessage);
-
-      const newEquationButton = document.createElement("button");
-      newEquationButton.className = "new-equation-btn";
-      newEquationButton.textContent = "NEW EQUATION";
-      newEquationButton.addEventListener("click", () => {
-        location.reload();
-      });
-      equationContainer.appendChild(newEquationButton);
     }
 
     function processCommand(command) {
