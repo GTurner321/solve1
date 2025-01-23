@@ -88,6 +88,22 @@
       equationDiv.textContent = formatEquation(a, b, c, d);
       equationContainer.appendChild(equationDiv);
 
+      if (a === 1 && b === 0 && c === 0) {
+        const successMessage = document.createElement("div");
+        successMessage.className = "success-message";
+        successMessage.textContent = `Well done! You have solved the equation. x = ${formatNumber(d)}`;
+        equationContainer.appendChild(successMessage);
+        return;
+      }
+
+      if (a === 0 && c === 1 && d === 0) {
+        const successMessage = document.createElement("div");
+        successMessage.className = "success-message";
+        successMessage.textContent = `Well done! You have solved the equation. x = ${formatNumber(b)}`;
+        equationContainer.appendChild(successMessage);
+        return;
+      }
+
       const inputContainer = document.createElement("div");
       inputContainer.className = "input-container";
 
