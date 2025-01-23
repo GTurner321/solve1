@@ -43,13 +43,14 @@
       text-align: center;
     }
     .new-equation-button {
-      margin-top: 10px;
+      margin: 20px auto; /* Centered horizontally */
       padding: 10px 20px;
       font-size: 16px;
       background-color: green;
       color: white;
       border: none;
       cursor: pointer;
+      display: block; /* Makes the button a block element */
     }
     .new-equation-button:hover {
       background-color: darkgreen;
@@ -71,18 +72,18 @@
   <div id="equation-container"></div>
   <div id="score-box">Score = 0</div>
   <script>
-    let a, b, c, d; // Equation variables
-    let score = 0; // Score counter
-    let successCount = 0; // Tracks how many times the congratulatory message was achieved
+    let a, b, c, d;
+    let score = 0;
+    let successCount = 0;
 
     function updateScore() {
       successCount++;
-      score = successCount * 5; // Score is a multiple of 5
+      score = successCount * 5;
       document.getElementById("score-box").textContent = `Score = ${score}`;
     }
 
     function formatNumber(num) {
-      return num.toFixed(3).replace(/\.?0+$/, ""); // Up to 3 decimal places, no trailing zeros
+      return num.toFixed(3).replace(/\.?0+$/, "");
     }
 
     function formatEquation(a, b, c, d) {
@@ -100,12 +101,16 @@
     }
 
     function validateInput(input) {
+      // Disallow invalid patterns like '/nx', '*nx', '/-nx', '*-nx'
+      if (/^[\/\*][\-]?\d*x$/.test(input)) {
+        return false;
+      }
       return /^[\+\-\*\/]x?$|^[\+\-\*\/](\d+(\.\d+)?|\-\d+(\.\d+)?)x?$/.test(input);
     }
 
     function generateEquation() {
       const equationContainer = document.getElementById("equation-container");
-      equationContainer.innerHTML = ""; // Clear all content
+      equationContainer.innerHTML = "";
       do {
         a = Math.floor(Math.random() * 21) - 10;
         c = Math.floor(Math.random() * 21) - 10;
@@ -135,13 +140,18 @@
         successMessage.textContent = `Well done! You have solved the equation. x = ${solution}`;
         equationContainer.appendChild(successMessage);
 
-        updateScore(); // Update score when equation is solved
+        updateScore();
 
         const newEquationButton = document.createElement("button");
         newEquationButton.className = "new-equation-button";
         newEquationButton.textContent = "NEW EQUATION";
-        newEquationButton.onclick = generateEquation;
+        newEquationButton.onclick = () => {
+          generateEquation();
+          window.scrollTo(0, 0); // Scroll back to the top for a new equation
+        };
         equationContainer.appendChild(newEquationButton);
+
+        successMessage.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
 
@@ -179,7 +189,7 @@
     }
 
     function processCommand(command) {
-      const value = parseFloat(command.slice(1).replace("x", "")) || 1; // Default to 1 if unspecified
+      const value = parseFloat(command.slice(1).replace("x", "")) || 1;
       const operation = command[0];
 
       if (command.includes("x")) {
