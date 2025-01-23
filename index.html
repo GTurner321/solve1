@@ -29,6 +29,10 @@
       padding: 5px;
       font-size: 16px;
     }
+    .input-command {
+      font-size: 16px;
+      margin-top: 5px;
+    }
     .error-message {
       color: orange;
       margin-top: 5px;
@@ -79,15 +83,24 @@
       renderEquation();
     }
 
-    function renderEquation() {
+    function renderEquation(command = null) {
       const equationContainer = document.getElementById("equation-container");
-      equationContainer.innerHTML = ""; // Clear previous content
 
+      // Print the previous command if available
+      if (command) {
+        const commandDiv = document.createElement("div");
+        commandDiv.className = "input-command";
+        commandDiv.textContent = `Command: ${command}`;
+        equationContainer.appendChild(commandDiv);
+      }
+
+      // Print the updated equation
       const equationDiv = document.createElement("div");
       equationDiv.className = "equation";
       equationDiv.textContent = formatEquation(a, b, c, d);
       equationContainer.appendChild(equationDiv);
 
+      // Check for end state
       if (a === 1 && b === 0 && c === 0) {
         const successMessage = document.createElement("div");
         successMessage.className = "success-message";
@@ -104,6 +117,7 @@
         return;
       }
 
+      // Add input box for the next command
       const inputContainer = document.createElement("div");
       inputContainer.className = "input-container";
 
@@ -130,10 +144,9 @@
           }
 
           errorMessage.textContent = "";
-          processCommand(input);
-
           inputBox.disabled = true;
-          renderEquation();
+          processCommand(input);
+          renderEquation(input);
         }
       });
     }
