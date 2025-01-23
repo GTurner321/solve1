@@ -122,9 +122,10 @@
         const newEquationButton = document.createElement("button");
         newEquationButton.className = "new-equation-button";
         newEquationButton.textContent = "NEW EQUATION";
+        newEquationButton.style.display = "block"; // Makes the button a block element
+        newEquationButton.style.margin = "20px auto"; // Centers the button horizontally
         newEquationButton.onclick = generateEquation;
         equationContainer.appendChild(newEquationButton);
-
         return;
       }
 
