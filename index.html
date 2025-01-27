@@ -75,12 +75,12 @@
   </style>
 </head>
 <body>
-  <div id="equation-container"></div>
   <div id="score-box">Score = 0</div>
+  <div id="button-container"></div>
+  <div id="equation-container"></div>
   <script>
     let a, b, c, d;
     let score = 0;
-    let successCount = 0;
     let inputCount = 0;
 
     function updateScore(bonusPoints) {
@@ -89,34 +89,21 @@
       document.getElementById("score-box").textContent = `Score = ${score}`;
     }
 
-        function formatNumber(num) {
-  // If the absolute value of the number is less than 0.0005, return '0' or '-0' depending on the sign
-  if (Math.abs(num) < 0.0005) {
-    return num < 0 ? "-0" : "0";
-  }
-  
-  // If the number is a multiple of 10 (like 200), keep the integer part intact
-  if (num % 10 === 0 && num % 1 === 0) {
-    return num.toString();
-  }
-  
-  // Otherwise, proceed with the existing logic for decimal values
-  const formatted = num.toFixed(8);
-  
-  // Check if there are non-zero digits beyond the 3rd decimal place
-  const beyondThirdDecimal = formatted.slice(5).split('').some((digit) => digit !== '0');
-  
-  // Trim to 3 decimal places
-  let trimmed = parseFloat(num.toFixed(3)).toString();
-  
-  // If there are significant digits beyond the 3rd decimal place, return the full 3-decimal version
-  if (beyondThirdDecimal) {
-    return trimmed;
-  }
-  
-  // Otherwise, strip trailing zeros and the decimal point if not needed
-  return trimmed.replace(/\.?0+$/, "");
-}
+    function formatNumber(num) {
+      if (Math.abs(num) < 0.0005) {
+        return num < 0 ? "-0" : "0";
+      }
+      if (num % 10 === 0 && num % 1 === 0) {
+        return num.toString();
+      }
+      const formatted = num.toFixed(8);
+      const beyondThirdDecimal = formatted.slice(5).split('').some((digit) => digit !== '0');
+      let trimmed = parseFloat(num.toFixed(3)).toString();
+      if (beyondThirdDecimal) {
+        return trimmed;
+      }
+      return trimmed.replace(/\.?0+$/, "");
+    }
 
     function formatEquation(a, b, c, d) {
       const left = [
@@ -132,211 +119,57 @@
       return `${left} = ${right}`;
     }
 
-    function validateInput(input) {
-      return /^[\+\-\*\/]x?$|^[\+\-\*\/](\d+(\.\d+)?|\-\d+(\.\d+)?)x?$/.test(input);
-    }
-
     function generateEquation(level) {
       inputCount = 0;
       const equationContainer = document.getElementById("equation-container");
-      equationContainer.innerHTML = "";
+      equationContainer.innerHTML = ""; // Clear only the equation container
 
       if (level === "L1") {
-        const option = Math.floor(Math.random() * 4);
-        if (option === 0) {
-          a = Math.floor(Math.random() * 10) + 1;
-          b = 0;
-          c = 0;
-          d = Math.floor(Math.random() * 10) + 1;
-        } else if (option === 1) {
-          a = 0;
-          b = 0;
-          c = Math.floor(Math.random() * 10) + 1;
-          d = Math.floor(Math.random() * 10) + 1;
-        } else if (option === 2) {
-          a = 1;
-          b = Math.floor(Math.random() * 10) + 1;
-          c = 0;
-          d = Math.floor(Math.random() * 10) + 1;
-        } else {
-          a = 0;
-          b = Math.floor(Math.random() * 10) + 1;
-          c = 1;
-          d = Math.floor(Math.random() * 10) + 1;
-        }
+        a = Math.floor(Math.random() * 10) + 1;
+        b = 0;
+        c = 0;
+        d = Math.floor(Math.random() * 10) + 1;
       } else if (level === "L2") {
-        const option = Math.floor(Math.random() * 2);
-        if (option === 0) {
-          a = Math.floor(Math.random() * 10) + 1;
-          b = Math.floor(Math.random() * 10) + 1;
-          c = 0;
-          d = Math.floor(Math.random() * 10) + 1;
-        } else {
-          a = 0;
-          b = Math.floor(Math.random() * 10) + 1;
-          c = Math.floor(Math.random() * 10) + 1;
-          d = Math.floor(Math.random() * 10) + 1;
-        }
+        a = Math.floor(Math.random() * 10) + 1;
+        b = Math.floor(Math.random() * 10) + 1;
+        c = 0;
+        d = Math.floor(Math.random() * 10) + 1;
       } else {
-        do {
-          a = Math.floor(Math.random() * 21) - 10;
-          c = Math.floor(Math.random() * 21) - 10;
-        } while (a === c || a === 0 || c === 0 || Math.abs(a - c) === 1);
-
+        a = Math.floor(Math.random() * 21) - 10;
+        c = Math.floor(Math.random() * 21) - 10;
         b = Math.floor(Math.random() * 21) - 10;
         d = Math.floor(Math.random() * 21) - 10;
-
-        while (b === 0) {
-          b = Math.floor(Math.random() * 21) - 10;
-        }
-        while (d === 0) {
-          d = Math.floor(Math.random() * 21) - 10;
-        }
       }
 
       renderEquation();
     }
 
-    function renderEquation(command = null) {
+    function renderEquation() {
       const equationContainer = document.getElementById("equation-container");
 
       const equationDiv = document.createElement("div");
       equationDiv.className = "equation";
       equationDiv.textContent = formatEquation(a, b, c, d);
       equationContainer.appendChild(equationDiv);
+    }
 
-      if (
-        (Math.abs(a - 1) < 0.000001 && Math.abs(b) < 0.000001 && Math.abs(c) < 0.000001) ||
-        (Math.abs(a) < 0.000001 && Math.abs(c - 1) < 0.000001 && Math.abs(d) < 0.000001)
-      ) {
-        const successMessage = document.createElement("div");
-        successMessage.className = "success-message";
-        const solution = Math.abs(a - 1) < 0.000001 ? formatNumber(d) : formatNumber(b);
-        successMessage.textContent = `Well done! You have solved the equation. x = ${solution}`;
-        equationContainer.appendChild(successMessage);
+    function createInitialButtons() {
+      const buttonContainer = document.getElementById("button-container");
+      buttonContainer.style.display = "flex";
+      buttonContainer.style.justifyContent = "center";
+      buttonContainer.style.gap = "10px";
 
-        let pointsMessage = "Points: 3";
-        let bonusPoints = 0;
-
-        if (inputCount <= 3) {
-          bonusPoints = 3;
-          pointsMessage += " +3 bonus";
-        } else if (inputCount === 4) {
-          bonusPoints = 2;
-          pointsMessage += " +2 bonus";
-        } else if (inputCount === 5) {
-          bonusPoints = 1;
-          pointsMessage += " +1 bonus";
-        }
-
-        updateScore(bonusPoints);
-
-        const pointsDiv = document.createElement("div");
-        pointsDiv.className = "points-message";
-        pointsDiv.textContent = pointsMessage;
-        equationContainer.appendChild(pointsDiv);
-
-        // New equation buttons
-const createNewEquationButtons = () => {
-  const buttonContainer = document.createElement("div");
-  buttonContainer.style.display = "flex";
-  buttonContainer.style.justifyContent = "center";
-  buttonContainer.style.gap = "10px";
-
-  // L1 Button
-  const newEquationL1Button = document.createElement("button");
-  newEquationL1Button.className = "new-equation-button";
-  newEquationL1Button.textContent = "NEW EQUATION L1";
-  newEquationL1Button.onclick = () => {
-    generateEquation("L1");
-    window.scrollTo(0, 0); // Scroll back to the top
-  };
-  buttonContainer.appendChild(newEquationL1Button);
-
-  // L2 Button
-  const newEquationL2Button = document.createElement("button");
-  newEquationL2Button.className = "new-equation-button";
-  newEquationL2Button.textContent = "NEW EQUATION L2";
-  newEquationL2Button.onclick = () => {
-    generateEquation("L2");
-    window.scrollTo(0, 0); // Scroll back to the top
-  };
-  buttonContainer.appendChild(newEquationL2Button);
-
-  // L3 Button
-  const newEquationL3Button = document.createElement("button");
-  newEquationL3Button.className = "new-equation-button";
-  newEquationL3Button.textContent = "NEW EQUATION L3";
-  newEquationL3Button.onclick = () => {
-    generateEquation("L3");
-    window.scrollTo(0, 0); // Scroll back to the top
-  };
-  buttonContainer.appendChild(newEquationL3Button);
-
-  equationContainer.appendChild(buttonContainer);
-};
-
-        inputBox.focus();
-
-      inputBox.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          const input = inputBox.value.trim();
-
-          if (!validateInput(input)) {
-            errorMessage.textContent = "Invalid command. Try again.";
-            return;
-          }
-
-          inputCount += 1;
-          errorMessage.textContent = "";
-          inputBox.disabled = true;
-          processCommand(input);
-          renderEquation(input);
-        }
+      ["L1", "L2", "L3"].forEach((level) => {
+        const button = document.createElement("button");
+        button.className = "new-equation-button";
+        button.textContent = `NEW EQUATION ${level}`;
+        button.onclick = () => generateEquation(level);
+        buttonContainer.appendChild(button);
       });
     }
 
-    function processCommand(command) {
-      const value = parseFloat(command.slice(1).replace("x", "")) || 1;
-      const operation = command[0];
-
-      if (command.includes("x")) {
-        if (operation === "+") {
-          a += value;
-          c += value;
-        } else if (operation === "-") {
-          a -= value;
-          c -= value;
-        }
-      } else {
-        if (operation === "+") {
-          b += value;
-          d += value;
-        } else if (operation === "-") {
-          b -= value;
-          d -= value;
-        } else if (operation === "*") {
-          a *= value;
-          b *= value;
-          c *= value;
-          d *= value;
-        } else if (operation === "/") {
-          a /= value;
-          b /= value;
-          c /= value;
-          d /= value;
-        }
-      }
-    }
-
-    // Initial buttons
-    ["L1", "L2", "L3"].forEach((level) => {
-      const button = document.createElement("button");
-      button.className = "new-equation-button";
-      button.textContent = `NEW EQUATION ${level}`;
-      button.onclick = () => generateEquation(level);
-      document.body.insertBefore(button, document.body.firstChild);
-    });
+    // Create buttons when the page loads
+    createInitialButtons();
   </script>
 </body>
 </html>
