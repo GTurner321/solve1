@@ -89,18 +89,34 @@
       document.getElementById("score-box").textContent = `Score = ${score}`;
     }
 
-    function formatNumber(num) {
-      if (Math.abs(num) < 0.0005) {
-        return num < 0 ? "-0" : "0";
-      }
-      const formatted = num.toFixed(8);
-      const beyondThirdDecimal = formatted.slice(5).split('').some((digit) => digit !== '0');
-      let trimmed = parseFloat(num.toFixed(3)).toString();
-      if (beyondThirdDecimal) {
-        return trimmed;
-      }
-      return trimmed.replace(/\.?0+$/, "");
-    }
+        function formatNumber(num) {
+  // If the absolute value of the number is less than 0.0005, return '0' or '-0' depending on the sign
+  if (Math.abs(num) < 0.0005) {
+    return num < 0 ? "-0" : "0";
+  }
+  
+  // If the number is a multiple of 10 (like 200), keep the integer part intact
+  if (num % 10 === 0 && num % 1 === 0) {
+    return num.toString();
+  }
+  
+  // Otherwise, proceed with the existing logic for decimal values
+  const formatted = num.toFixed(8);
+  
+  // Check if there are non-zero digits beyond the 3rd decimal place
+  const beyondThirdDecimal = formatted.slice(5).split('').some((digit) => digit !== '0');
+  
+  // Trim to 3 decimal places
+  let trimmed = parseFloat(num.toFixed(3)).toString();
+  
+  // If there are significant digits beyond the 3rd decimal place, return the full 3-decimal version
+  if (beyondThirdDecimal) {
+    return trimmed;
+  }
+  
+  // Otherwise, strip trailing zeros and the decimal point if not needed
+  return trimmed.replace(/\.?0+$/, "");
+}
 
     function formatEquation(a, b, c, d) {
       const left = [
@@ -220,32 +236,47 @@
         pointsDiv.textContent = pointsMessage;
         equationContainer.appendChild(pointsDiv);
 
-        const newEquationButtons = ["L1", "L2", "L3"].map((level) => {
-          const button = document.createElement("button");
-          button.className = "new-equation-button";
-          button.textContent = `NEW EQUATION ${level}`;
-          button.onclick = () => generateEquation(level);
-          return button;
-        });
+        // New equation buttons
+const createNewEquationButtons = () => {
+  const buttonContainer = document.createElement("div");
+  buttonContainer.style.display = "flex";
+  buttonContainer.style.justifyContent = "center";
+  buttonContainer.style.gap = "10px";
 
-        newEquationButtons.forEach((button) => equationContainer.appendChild(button));
-        return;
-      }
+  // L1 Button
+  const newEquationL1Button = document.createElement("button");
+  newEquationL1Button.className = "new-equation-button";
+  newEquationL1Button.textContent = "NEW EQUATION L1";
+  newEquationL1Button.onclick = () => {
+    generateEquation("L1");
+    window.scrollTo(0, 0); // Scroll back to the top
+  };
+  buttonContainer.appendChild(newEquationL1Button);
 
-      const inputContainer = document.createElement("div");
-      inputContainer.className = "input-container";
+  // L2 Button
+  const newEquationL2Button = document.createElement("button");
+  newEquationL2Button.className = "new-equation-button";
+  newEquationL2Button.textContent = "NEW EQUATION L2";
+  newEquationL2Button.onclick = () => {
+    generateEquation("L2");
+    window.scrollTo(0, 0); // Scroll back to the top
+  };
+  buttonContainer.appendChild(newEquationL2Button);
 
-      const inputBox = document.createElement("input");
-      inputBox.className = "input-box";
-      inputBox.type = "text";
-      inputContainer.appendChild(inputBox);
+  // L3 Button
+  const newEquationL3Button = document.createElement("button");
+  newEquationL3Button.className = "new-equation-button";
+  newEquationL3Button.textContent = "NEW EQUATION L3";
+  newEquationL3Button.onclick = () => {
+    generateEquation("L3");
+    window.scrollTo(0, 0); // Scroll back to the top
+  };
+  buttonContainer.appendChild(newEquationL3Button);
 
-      const errorMessage = document.createElement("span");
-      errorMessage.className = "error-message";
-      inputContainer.appendChild(errorMessage);
+  equationContainer.appendChild(buttonContainer);
+};
 
-      equationContainer.appendChild(inputContainer);
-      inputBox.focus();
+        inputBox.focus();
 
       inputBox.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
