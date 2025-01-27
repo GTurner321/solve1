@@ -78,6 +78,7 @@
   <div id="score-box">Score = 0</div>
   <div id="button-container"></div>
   <div id="equation-container"></div>
+  <div id="input-container"></div>
   <script>
     let a, b, c, d;
     let score = 0;
@@ -122,7 +123,9 @@
     function generateEquation(level) {
       inputCount = 0;
       const equationContainer = document.getElementById("equation-container");
+      const inputContainer = document.getElementById("input-container");
       equationContainer.innerHTML = ""; // Clear only the equation container
+      inputContainer.innerHTML = ""; // Clear the input container
 
       if (level === "L1") {
         a = Math.floor(Math.random() * 10) + 1;
@@ -142,6 +145,7 @@
       }
 
       renderEquation();
+      createInputFields();
     }
 
     function renderEquation() {
@@ -151,6 +155,20 @@
       equationDiv.className = "equation";
       equationDiv.textContent = formatEquation(a, b, c, d);
       equationContainer.appendChild(equationDiv);
+    }
+
+    function createInputFields() {
+      const inputContainer = document.getElementById("input-container");
+      
+      const inputLabel = document.createElement("label");
+      inputLabel.textContent = "Enter your solution for x:";
+      inputContainer.appendChild(inputLabel);
+
+      const inputBox = document.createElement("input");
+      inputBox.type = "number";
+      inputBox.className = "input-box";
+      inputBox.id = "solution-input";
+      inputContainer.appendChild(inputBox);
     }
 
     function createInitialButtons() {
