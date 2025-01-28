@@ -43,25 +43,25 @@
       text-align: center;
     }
     .points-message {
-      color: green;
-      font-size: 20px;
-      text-align: center;
-      margin-top: 10px;
+    color: green;
+    font-size: 20px;
+    text-align: center;
+    margin-top: 10px;
     }
     .new-equation-button {
-      margin: 10px auto;
+      margin: 20px auto; /* Centered horizontally */
       padding: 10px 20px;
       font-size: 16px;
       background-color: green;
       color: white;
       border: none;
       cursor: pointer;
-      display: block;
+      display: block; /* Makes the button a block element */
     }
     .new-equation-button:hover {
       background-color: darkgreen;
     }
-    #score-box {
+        #score-box {
       position: fixed;
       top: 10px;
       right: 10px;
@@ -75,119 +75,242 @@
   </style>
 </head>
 <body>
-  <div id="score-box">Score = 0</div>
-  <div id="button-container"></div>
+  <button id="new-equation-top" class="new-equation-button">NEW EQUATION</button>
   <div id="equation-container"></div>
-  <div id="input-container"></div>
+  <div id="score-box">Score = 0</div>
   <script>
     let a, b, c, d;
     let score = 0;
-    let inputCount = 0;
+    let successCount = 0;
+    let inputCount = 0; // Track number of user inputs
 
-    function updateScore(bonusPoints) {
-      const totalPoints = 3 + bonusPoints;
-      score += totalPoints;
-      document.getElementById("score-box").textContent = `Score = ${score}`;
-    }
+function updateScore(bonusPoints) {
+  // Add base 3 points and bonus points to the score
+  const totalPoints = 3 + bonusPoints;
+  score += totalPoints;
+  document.getElementById("score-box").textContent = `Score = ${score}`;
+}
 
     function formatNumber(num) {
-      if (Math.abs(num) < 0.0005) {
-        return num < 0 ? "-0" : "0";
-      }
-      if (num % 10 === 0 && num % 1 === 0) {
-        return num.toString();
-      }
-      const formatted = num.toFixed(8);
-      const beyondThirdDecimal = formatted.slice(5).split('').some((digit) => digit !== '0');
-      let trimmed = parseFloat(num.toFixed(3)).toString();
-      if (beyondThirdDecimal) {
-        return trimmed;
-      }
-      return trimmed.replace(/\.?0+$/, "");
-    }
+  // If the absolute value of the number is less than 0.0005, return '0' or '-0' depending on the sign
+  if (Math.abs(num) < 0.0005) {
+    return num < 0 ? "-0" : "0";
+  }
+  
+  // If the number is a multiple of 10 (like 200), keep the integer part intact
+  if (num % 10 === 0 && num % 1 === 0) {
+    return num.toString();
+  }
+  
+  // Otherwise, proceed with the existing logic for decimal values
+  const formatted = num.toFixed(8);
+  
+  // Check if there are non-zero digits beyond the 3rd decimal place
+  const beyondThirdDecimal = formatted.slice(5).split('').some((digit) => digit !== '0');
+  
+  // Trim to 3 decimal places
+  let trimmed = parseFloat(num.toFixed(3)).toString();
+  
+  // If there are significant digits beyond the 3rd decimal place, return the full 3-decimal version
+  if (beyondThirdDecimal) {
+    return trimmed;
+  }
+  
+  // Otherwise, strip trailing zeros and the decimal point if not needed
+  return trimmed.replace(/\.?0+$/, "");
+}
 
     function formatEquation(a, b, c, d) {
+      const isEndConditionI = Math.abs(a - 1) < 0.000001 && Math.abs(b) < 0.000001 && Math.abs(c) < 0.000001;
+      const isEndConditionII = Math.abs(a) < 0.000001 && Math.abs(c - 1) < 0.000001 && Math.abs(d) < 0.000001;
+
       const left = [
         a !== 0 ? (a === 1 ? "x" : a === -1 ? "-x" : formatNumber(a) + "x") : "",
-        b !== 0 ? `${b > 0 && a !== 0 ? "+" : ""}${formatNumber(b)}` : "",
+        !isEndConditionI && b !== 0 ? `${b > 0 && a !== 0 ? "+" : ""}${formatNumber(b)}` : "",
       ].join("").trim() || "0";
 
       const right = [
         c !== 0 ? (c === 1 ? "x" : c === -1 ? "-x" : formatNumber(c) + "x") : "",
-        d !== 0 ? `${d > 0 && c !== 0 ? "+" : ""}${formatNumber(d)}` : "",
+        !isEndConditionII && d !== 0 ? `${d > 0 && c !== 0 ? "+" : ""}${formatNumber(d)}` : "",
       ].join("").trim() || "0";
 
       return `${left} = ${right}`;
     }
 
-    function generateEquation(level) {
-      inputCount = 0;
-      const equationContainer = document.getElementById("equation-container");
-      const inputContainer = document.getElementById("input-container");
-      equationContainer.innerHTML = ""; // Clear only the equation container
-      inputContainer.innerHTML = ""; // Clear the input container
-
-      if (level === "L1") {
-        a = Math.floor(Math.random() * 10) + 1;
-        b = 0;
-        c = 0;
-        d = Math.floor(Math.random() * 10) + 1;
-      } else if (level === "L2") {
-        a = Math.floor(Math.random() * 10) + 1;
-        b = Math.floor(Math.random() * 10) + 1;
-        c = 0;
-        d = Math.floor(Math.random() * 10) + 1;
-      } else {
-        a = Math.floor(Math.random() * 21) - 10;
-        c = Math.floor(Math.random() * 21) - 10;
-        b = Math.floor(Math.random() * 21) - 10;
-        d = Math.floor(Math.random() * 21) - 10;
+    function validateInput(input) {
+      // Disallow invalid patterns like '/nx', '*nx', '/-nx', '*-nx'
+      if (/^[\/\*][\-]?\d*x$/.test(input)) {
+        return false;
       }
-
-      renderEquation();
-      createInputFields();
+      return /^[\+\-\*\/]x?$|^[\+\-\*\/](\d+(\.\d+)?|\-\d+(\.\d+)?)x?$/.test(input);
     }
 
-    function renderEquation() {
-      const equationContainer = document.getElementById("equation-container");
+    function generateEquation() {
+  // Reset inputCount when a new equation is generated
+  inputCount = 0;
 
-      const equationDiv = document.createElement("div");
-      equationDiv.className = "equation";
-      equationDiv.textContent = formatEquation(a, b, c, d);
-      equationContainer.appendChild(equationDiv);
+  const equationContainer = document.getElementById("equation-container");
+  equationContainer.innerHTML = "";
+
+  do {
+    a = Math.floor(Math.random() * 21) - 10;
+    c = Math.floor(Math.random() * 21) - 10;
+  } while (a === c || a === 0 || c === 0 || Math.abs(a - c) === 1); // Ensure a and c are not equal, not zero, and their difference is not 1
+
+  b = Math.floor(Math.random() * 21) - 10;
+  d = Math.floor(Math.random() * 21) - 10;
+
+  // Ensure b and d are not zero
+  while (b === 0) {
+    b = Math.floor(Math.random() * 21) - 10;
+  }
+  while (d === 0) {
+    d = Math.floor(Math.random() * 21) - 10;
+  }
+
+  renderEquation();
+}
+
+
+function renderEquation(command = null) {
+  const equationContainer = document.getElementById("equation-container");
+
+  const equationDiv = document.createElement("div");
+  equationDiv.className = "equation";
+  equationDiv.textContent = formatEquation(a, b, c, d);
+  equationContainer.appendChild(equationDiv);
+
+if (
+  (Math.abs(a - 1) < 0.000001 && Math.abs(b) < 0.000001 && Math.abs(c) < 0.000001) ||
+  (Math.abs(a) < 0.000001 && Math.abs(c - 1) < 0.000001 && Math.abs(d) < 0.000001)
+) {
+  const successMessage = document.createElement("div");
+  successMessage.className = "success-message";
+  const solution = Math.abs(a - 1) < 0.000001 ? formatNumber(d) : formatNumber(b);
+  successMessage.textContent = `Well done! You have solved the equation. x = ${solution}`;
+  equationContainer.appendChild(successMessage);
+
+  // Bonus points logic
+  let pointsMessage = "Points: 3";
+  let bonusPoints = 0;
+
+  if (inputCount <= 3) {
+    bonusPoints = 3;
+    pointsMessage += " +3 bonus";
+  } else if (inputCount === 4) {
+    bonusPoints = 2;
+    pointsMessage += " +2 bonus";
+  } else if (inputCount === 5) {
+    bonusPoints = 1;
+    pointsMessage += " +1 bonus";
+  } else {
+    bonusPoints = 0; // No bonus points for 6 or more inputs
+  }
+
+  // Update the score with base points and bonus points
+  updateScore(bonusPoints);
+
+  // Display the points message
+  const pointsDiv = document.createElement("div");
+  pointsDiv.className = "points-message";
+  pointsDiv.textContent = pointsMessage;
+  equationContainer.appendChild(pointsDiv);
+
+  // New equation button
+  const newEquationButton = document.createElement("button");
+  newEquationButton.className = "new-equation-button";
+  newEquationButton.textContent = "NEW EQUATION";
+  newEquationButton.onclick = () => {
+    generateEquation();
+    window.scrollTo(0, 0); // Scroll back to the top for a new equation
+  };
+  equationContainer.appendChild(newEquationButton);
+
+  successMessage.scrollIntoView({ behavior: "smooth", block: "center" });
+  return;
+}
+
+
+  const inputContainer = document.createElement("div");
+  inputContainer.className = "input-container";
+
+  const inputBox = document.createElement("input");
+  inputBox.className = "input-box";
+  inputBox.type = "text";
+  inputContainer.appendChild(inputBox);
+
+  const errorMessage = document.createElement("span");
+  errorMessage.className = "error-message";
+  inputContainer.appendChild(errorMessage);
+
+  equationContainer.appendChild(inputContainer);
+
+  inputBox.focus();
+
+  inputBox.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const input = inputBox.value.trim();
+
+    if (!validateInput(input)) {
+      errorMessage.textContent = "Invalid command. Try again.";
+      return;
     }
 
-    function createInputFields() {
-      const inputContainer = document.getElementById("input-container");
-      
-      const inputLabel = document.createElement("label");
-      inputLabel.textContent = "Enter your solution for x:";
-      inputContainer.appendChild(inputLabel);
+    // Increment inputCount for each valid input
+    inputCount += 1;
 
-      const inputBox = document.createElement("input");
-      inputBox.type = "number";
-      inputBox.className = "input-box";
-      inputBox.id = "solution-input";
-      inputContainer.appendChild(inputBox);
+    errorMessage.textContent = "";
+    inputBox.disabled = true;
+    processCommand(input);
+    renderEquation(input);
+  }
+});
+}
+
+    
+    function processCommand(command) {
+      const value = parseFloat(command.slice(1).replace("x", "")) || 1;
+      const operation = command[0];
+
+      if (command.includes("x")) {
+        if (operation === "+") {
+          a += value;
+          c += value;
+        } else if (operation === "-") {
+          a -= value;
+          c -= value;
+        }
+      } else {
+        if (operation === "+") {
+          b += value;
+          d += value;
+        } else if (operation === "-") {
+          b -= value;
+          d -= value;
+        } else if (operation === "*") {
+          a *= value;
+          b *= value;
+          c *= value;
+          d *= value;
+        } else if (operation === "/") {
+          a /= value;
+          b /= value;
+          c /= value;
+          d /= value;
+        }
+      }
     }
 
-    function createInitialButtons() {
-      const buttonContainer = document.getElementById("button-container");
-      buttonContainer.style.display = "flex";
-      buttonContainer.style.justifyContent = "center";
-      buttonContainer.style.gap = "10px";
+    function handleNewEquation() {
+  generateEquation(); // Generates a new equation
+  window.scrollTo(0, 0); // Scroll to the top of the page
+}
 
-      ["L1", "L2", "L3"].forEach((level) => {
-        const button = document.createElement("button");
-        button.className = "new-equation-button";
-        button.textContent = `NEW EQUATION ${level}`;
-        button.onclick = () => generateEquation(level);
-        buttonContainer.appendChild(button);
-      });
-    }
+// Add event listener to the top button for generating a new equation
+window.onload = () => {
+  document.getElementById("new-equation-top").addEventListener("click", handleNewEquation);
+};
 
-    // Create buttons when the page loads
-    createInitialButtons();
   </script>
 </body>
 </html>
