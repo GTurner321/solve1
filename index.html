@@ -115,6 +115,26 @@
     return beyondThirdDecimal ? trimmed : trimmed.replace(/\.?0+$/, "");
   }
 
+function generateEquation() {
+    inputCount = 0;
+    
+    do {
+        a = Math.floor(Math.random() * 21) - 10;
+        c = Math.floor(Math.random() * 21) - 10;
+    } while (a === c || a === 0 || c === 0 || Math.abs(a - c) === 1);
+
+    do {
+        b = Math.floor(Math.random() * 21) - 10;
+    } while (b === 0);
+
+    do {
+        d = Math.floor(Math.random() * 21) - 10;
+    } while (d === 0);
+
+    renderEquation(); // Ensure equation is displayed
+}
+
+    
   function generateEquationL3() {
   inputCount = 0;
 
@@ -259,12 +279,10 @@ document.getElementById("new-equation-l2-bottom").addEventListener("click", gene
 document.getElementById("new-equation-l3-bottom").addEventListener("click", generateEquationL3);  // Correct function
 
 // Ensure the game starts with a new equation when the page loads
-window.onload = generateEquation;
-    
-  // Ensure the game starts with a new equation
-  window.onload = () => {
-    generateEquation();
-  };
+    window.onload = () => {
+    generateEquation(); // Start with L1 equation
+};
+
 </script>
 
 </body>
