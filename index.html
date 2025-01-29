@@ -246,11 +246,17 @@
     window.scrollTo(0, 0);
   }
 
-  // Attach event listeners to all "NEW EQUATION" buttons
-  document.querySelectorAll(".new-equation-button").forEach(button => {
-    button.addEventListener("click", handleNewEquation);
-  });
+// Explicitly add event listeners for the main buttons
+document.getElementById("new-equation-l1-top").addEventListener("click", generateEquation);
+document.getElementById("new-equation-l2-top").addEventListener("click", generateEquation);
+document.getElementById("new-equation-l3-top").addEventListener("click", generateEquation);
+document.getElementById("new-equation-l1-bottom").addEventListener("click", generateEquation);
+document.getElementById("new-equation-l2-bottom").addEventListener("click", generateEquation);
+document.getElementById("new-equation-l3-bottom").addEventListener("click", generateEquation);
 
+// Ensure the game starts with a new equation when the page loads
+window.onload = generateEquation;
+    
   // Ensure the game starts with a new equation
   window.onload = () => {
     generateEquation();
