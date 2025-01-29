@@ -115,24 +115,28 @@
     return beyondThirdDecimal ? trimmed : trimmed.replace(/\.?0+$/, "");
   }
 
-  function generateEquation() {
-    inputCount = 0;
+  function generateEquationL3() {
+  inputCount = 0;
 
-    do {
-      a = Math.floor(Math.random() * 21) - 10;
-      c = Math.floor(Math.random() * 21) - 10;
-    } while (a === c || a === 0 || c === 0 || Math.abs(a - c) === 1);
+  do {
+    a = Math.floor(Math.random() * 21) - 10;
+    c = Math.floor(Math.random() * 21) - 10;
+  } while (a === c || a === 0 || c === 0 || Math.abs(a - c) === 1);
 
-    do {
-      b = Math.floor(Math.random() * 21) - 10;
-    } while (b === 0);
+  do {
+    b = Math.floor(Math.random() * 21) - 10;
+  } while (b === 0);
 
-    do {
-      d = Math.floor(Math.random() * 21) - 10;
-    } while (d === 0);
+  do {
+    d = Math.floor(Math.random() * 21) - 10;
+  } while (d === 0);
 
-    renderEquation(); // Render after generating a new equation
-  }
+  // Modify equation difficulty for L3 (if needed)
+  a *= 2;  // Example: Make L3 equations harder
+  c *= 2;
+  
+  renderEquation();
+}
 
   function renderEquation(command = null) {
     const equationContainer = document.getElementById("equation-container");
@@ -249,10 +253,10 @@
 // Explicitly add event listeners for the main buttons
 document.getElementById("new-equation-l1-top").addEventListener("click", generateEquation);
 document.getElementById("new-equation-l2-top").addEventListener("click", generateEquation);
-document.getElementById("new-equation-l3-top").addEventListener("click", generateEquation);
+document.getElementById("new-equation-l3-top").addEventListener("click", generateEquationL3);  // Correct function
 document.getElementById("new-equation-l1-bottom").addEventListener("click", generateEquation);
 document.getElementById("new-equation-l2-bottom").addEventListener("click", generateEquation);
-document.getElementById("new-equation-l3-bottom").addEventListener("click", generateEquation);
+document.getElementById("new-equation-l3-bottom").addEventListener("click", generateEquationL3);  // Correct function
 
 // Ensure the game starts with a new equation when the page loads
 window.onload = generateEquation;
